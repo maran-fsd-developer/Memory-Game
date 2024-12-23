@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memory Game</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="shortcut icon"
+      href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfC8Wg7Lde8EFQydd2dlM66r8R0tKePIumSnEh7iVx4uETq-oEzUnAzaGpuxLPFkadV0A&usqp=CAU"
+      type="image/x-icon"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Memory Game</h1>
+      <div class="stats">
+        <span>Lives: <span id="livesCount">10</span></span>
+        <button id="restartButton">Restart</button>
+      </div>
+    </header>
+    <main>
+      <div class="game-board" id="gameBoard"></div>
+    </main>
+    <script>
+      const cards = [
+        "🍎",
+        "🍎",
+        "🍌",
+        "🍌",
+        "🍇",
+        "🍇",
+        "🍓",
+        "🍓",
+        "🍒",
+        "🍒",
+        "🍍",
+        "🍍",
+        "🥝",
+        "🥝",
+        "🍉",
+        "🍉",
+      ];
+
+      let flippedCards = [];
+      let matchedPairs = 0;
+      let lives = 10;
+      const gameBoard = document.getElementById("gameBoard");
+      const livesCountElement = document.getElementById("livesCount");
+
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function createCard(content) {
+        const card = document.createElement("div");
+        card.classList.add("card");
+
+        const front = document.createElement("div");
+        front.classList.add("front");
+        front.textContent = content;
+
+        const back = document.createElement("div");
+        back.classList.add("back");
+
+        card.appendChild(front);
+        card.appendChild(back);
+
+        card.addEventListener("click", () => handleCardFlip(card, content));
+        return card;
+      }
+
+      function handleCardFlip(card, content) {
+        if (flippedCards.length < 2 && !card.classList.contains("flip")) {
+          card.classList.add("flip");
+          flippedCards.push({ card, content });
+
+          if (flippedCards.length === 2) {
+            checkForMatch();
+          }
+        }
+      }
+
+      function checkForMatch() {
+        const [firstCard, secondCard] = flippedCards;
+
+        if (firstCard.content === secondCard.content) {
+          matchedPairs++;
+          flippedCards = [];
+          if (matchedPairs === cards.length / 2) {
+            setTimeout(() => {
+              alert("Congratulations! You found all pairs! 🥳🎉🎊");
+              initGame();
+            }, 500);
+          }
+        } else {
+          setTimeout(() => {
+            firstCard.card.classList.remove("flip");
+            secondCard.card.classList.remove("flip");
+            flippedCards = [];
+            decreaseLives();
+          }, 1000);
+        }
+      }
+
+      function decreaseLives() {
+        lives--;
+        livesCountElement.textContent = lives;
+
+        if (lives === 0) {
+          setTimeout(() => {
+            alert("Game Over! Restarting the game...");
+            initGame();
+          }, 500);
+        }
+      }
+
+      function initGame() {
+        gameBoard.innerHTML = "";
+        matchedPairs = 0;
+        flippedCards = [];
+        lives = 10;
+        livesCountElement.textContent = lives;
+        const shuffledCards = shuffle([...cards]);
+
+        shuffledCards.forEach((content) => {
+          const card = createCard(content);
+          gameBoard.appendChild(card);
+        });
+      }
+
+      document
+        .getElementById("restartButton")
+        .addEventListener("click", initGame);
+
+      initGame();
+    </script>
+  </body>
+</html>
